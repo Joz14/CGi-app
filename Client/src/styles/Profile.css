@@ -1,0 +1,128 @@
+@import './theme.css';
+
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-lg);
+  background-color: var(--color-background);
+  min-height: 80vh;
+}
+
+.profile-card {
+
+  background-color: #f9f9f9;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-family-base);
+  position: relative;
+  top: 1em;
+  right: 1em;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--color-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.profile-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.profile-email {
+  font-size: var(--font-size-subtext);
+  color: var(--color-neutral);
+  margin-bottom: var(--space-md);
+}
+
+.form-section {
+  text-align: left;
+  margin-top: var(--space-md);
+}
+
+.form-section h3 {
+  margin-bottom: var(--space-sm);
+  color: var(--color-primary);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: var(--color-neutral);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: var(--space-sm);
+  border: 1px solid #ccc;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: border var(--transition-fast);
+}
+
+.input-field:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.gradient-button {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: var(--color-background);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+}
+
+.gradient-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  font-size: 1.25rem;
+  padding: var(--space-lg);
+  font-family: var(--font-family-base);
+  color: var(--color-neutral);
+}
+
+
+/* Top-right logout button */
+.logout-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  
+    background-color: #ffffff;
+    color: rgb(238, 54, 54);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  .logout-button:hover {
+    background-color: #ffffff;
+  }

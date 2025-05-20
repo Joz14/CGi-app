@@ -1,0 +1,38 @@
+/* theme.css */
+
+:root {
+    /* Brand Colors */
+    --color-primary: #2e80cd;        /* Dark Blue */
+    --color-accent: #0c213a;         /* Teal Green */
+    --color-neutral: #666F76;        /* Gray Dot */
+    --color-background: #FFFFFF;     /* White */
+  
+    /* Typography */
+    --font-family-base: 'Segoe UI', sans-serif;
+    --font-size-heading-xl: 3rem;
+    --font-size-heading-lg: 1.75rem;
+    --font-size-body: 1rem;
+    --font-size-subtext: 0.95rem;
+  
+    /* Spacing */
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 2rem;
+    --space-lg: 3rem;
+    --space-xl: 4rem;
+  
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 30px;
+  
+    /* Shadow */
+    --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 6px 30px rgba(0, 0, 0, 0.2);
+  
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-smooth: 0.3s ease;
+  }
+  

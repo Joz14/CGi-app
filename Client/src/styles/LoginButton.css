@@ -1,0 +1,62 @@
+@import './theme.css';
+.login-button {
+  padding: 1em 2em;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #404245;
+  color: #ffffff;
+  border: none;
+  border-radius: 100px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Animated gradient border */
+.login-button::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #0d8aea, #09a5ee);
+  background-size: 200%;
+  background-position: left center;
+  border-radius: 100px;
+  z-index: -2;
+  transition: background-position 0.4s ease, filter 0.4s ease;
+}
+
+/* Solid fill to mask gradient initially */
+.login-button::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background-color: #404245;
+  border-radius: 100px;
+  z-index: -1;
+  transition: background-color 0.4s ease;
+}
+
+/* On hover: reveal gradient fill and animate background + glow */
+.login-button:hover::before {
+  background-color: transparent;
+}
+
+.login-button:hover::after {
+  background-position: right center;
+
+}
+
+.login-button:hover {
+  color: white;
+}

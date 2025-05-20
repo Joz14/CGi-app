@@ -1,0 +1,116 @@
+@import './theme.css';
+
+body {
+  margin: 0;
+  font-family: var(--font-family-base);
+  color: var(--color-neutral);
+  background-color: #f8f8f8;
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: var(--color-background);
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.hero-title {
+  font-size: var(--font-size-heading-xl);
+  margin-bottom: var(--space-sm);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-md);
+  font-weight: 300;
+}
+
+.cta-button {
+  background: var(--color-background);
+  color: var(--color-primary);
+  border: none;
+  padding: 0.9rem 2rem;
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  box-shadow: var(--shadow-md);
+}
+
+.cta-button:hover {
+  background: var(--color-neutral);
+  color: var(--color-background);
+  transform: translateY(-2px);
+}
+
+/* Main Content */
+.content {
+  padding: var(--space-lg) var(--space-md);
+  flex: 1;
+}
+
+.info-section {
+  max-width: 800px;
+  margin: var(--space-md) auto;
+  padding: var(--space-md);
+  background: #f9f9f9;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.info-section h2 {
+  color: var(--color-primary);
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-size-heading-lg);
+}
+
+.info-section p,
+.core-values li {
+  line-height: 1.6;
+  margin: var(--space-xs) 0;
+}
+
+/* Core Values List */
+.core-values {
+  list-style-type: disc;
+  padding-left: var(--space-md);
+}
+
+
+
+/* Wrapper for positioning the image on the right */
+.hover-image-wrapper {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(100%); /* Start hidden below */
+    transition: transform 0.45s ease-out;
+    z-index: 1;
+    pointer-events: none; /* Allows hover to work only on the button */
+  }
+  
+  .cta-button:hover ~ .hover-image-wrapper {
+    transform: translateY(-50%); /* Slide up into view */
+  }
+  
+  /* Optional styling for image size */
+  .hover-image {
+    width: 180px;
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  

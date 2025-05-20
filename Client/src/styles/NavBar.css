@@ -1,0 +1,70 @@
+@import './theme.css';
+
+.navbar {
+  background-color: rgb(255, 255, 255); /* replaces #1e1f21 */
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #2e2e33; /* can stay dark for visual separation */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  font-family: var(--font-family-base);
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.nav-button {
+  background-color: transparent;
+  color: var(--color-background); /* white */
+  border: none;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color var(--transition-smooth);
+}
+
+.nav-button:hover {
+  color: var(--color-primary); /* replaces #09a5ee */
+}
+
+.nav-login {
+  display: flex;
+  align-items: center;
+}
+
+/* Avatar Styling */
+.avatar-container {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary); /* replaces #09a5ee */
+  transition: transform var(--transition-fast);
+}
+
+.nav-avatar:hover {
+  transform: scale(1.05);
+}
+
+
+.navbar-logo {
+  height: 40px;
+  width: 40px;
+  scale: 140%;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
