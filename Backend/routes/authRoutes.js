@@ -30,7 +30,7 @@ authRouter.use(auth({
     scope: 'openid profile email',
   },
   getLoginState: () => ({
-    returnTo: 'http://localhost:3001/profile'
+    returnTo: 'http://localhost:3000/auth/login'
   }),
   afterCallback: (req, res, session) => {
     console.log('✅ Logged in session:', session);

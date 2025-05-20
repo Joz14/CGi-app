@@ -1,0 +1,73 @@
+const express = require('express');
+const router = express.Router();
+const mongoose = require('mongoose');
+const User = require('../models/userSchema.js'); // Adjust the path as necessary
+router.get('/auth/login', async (req, res) => {
+    if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+    const { sub, nickname, email} = req.oidc.user;
+  
+    try {
+      let user = await User.findOne({ auth0Id: sub });
+  
+      if (!user) {
+        user = await User.create({
+          auth0Id: sub,
+          email: email,
+          nickname: nickname,
+          roles: ['user']
+        });
+        console.log(`✅ Created new user: ${nickname}`);
+      }
+  
+      // Redirect to frontend app after DB setup
+      res.redirect('http://localhost:3001/');
+    } catch (err) {
+      console.error('❌ Failed to initialize user:', err);
+      res.status(500).send('User setup failed');
+    }
+  });
+
+router.get('/account', async (req, res) => {
+if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+
+try {
+    const authUser = req.oidc.user;
+    const user = await User.findOne({ auth0Id: authUser.sub });
+
+    if (!user) return res.status(404).json({ error: 'User not found in DB' });
+
+    res.json({
+    email: authUser.email,
+    picture: authUser.picture,
+    displayName: user.nickname,
+    clashTag: user.clashRoyaleTag || null
+    });
+} catch (err) {
+    console.error('Error fetching account:', err);
+    res.status(500).json({ error: 'Server error' });
+}
+});
+
+router.patch('/account', async (req, res) => {
+if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+
+const { displayName, clashTag } = req.body;
+
+try {
+    const updated = await User.findOneAndUpdate(
+    { auth0Id: req.oidc.user.sub },
+    {
+        ...(displayName && { nickname: displayName }),
+        ...(clashTag && { clashRoyaleTag: clashTag })
+    },
+    { new: true }
+    );
+    console.log('Updated user:', updated);
+    res.json({ message: 'Profile updated', user: updated });
+} catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(500).json({ error: 'Failed to update profile' });
+}
+});
+
+module.exports = router;
