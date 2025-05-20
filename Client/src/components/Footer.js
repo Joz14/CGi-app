@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="footer-container">
       <div className="social-footer">
         <h4>Connect with us</h4>
-        <div className="social-icons">
+        <div className="footer-social-icons">
           <a href="https://twitter.com/yourhandle" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
             <i className="fab fa-twitter"></i>
           </a>
