@@ -1,0 +1,52 @@
+@import './theme.css';
+
+.leaderboard-container {
+  min-height: calc(100vh - 160px);
+  padding: var(--space-lg);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  width: 100%;
+  max-width: 1000px;
+}
+
+.leaderboard-table {
+  margin-top: var(--space-md);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
+  padding: var(--space-sm);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
+  padding: var(--space-sm);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-smooth);
+}
+
+.table-row:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: translateX(4px);
+}
+
+.col {
+  display: flex;
+  align-items: center;
+}

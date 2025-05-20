@@ -1,0 +1,90 @@
+* MyClanPage.css */
+
+.clan-container {
+  padding: var(--space-md);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.clan-dashboard {
+  background: var(--glass-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  max-width: 700px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary, #1f1f1f);
+}
+
+.clan-dashboard h2 {
+  font-size: var(--font-size-heading-lg);
+  margin-bottom: var(--space-sm);
+  text-align: center;
+}
+
+/* Clan Stats */
+.clan-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0;
+}
+
+.stat-item {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  border: 1px solid var(--border-light);
+}
+
+.stat-label {
+  display: block;
+  font-size: var(--font-size-subtext);
+  color: var(--color-gery);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 0.25rem;
+}
+
+/* Recent Activity */
+.recent-activity {
+  margin-top: var(--space-md);
+}
+
+.recent-activity h3 {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-sm);
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activity-item {
+  background: rgba(255, 255, 255, 0.07);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-subtext);
+  border: 1px solid var(--border-light);
+}
+
+.activity-result.win {
+  color: #4ade80; /* green */
+}
+
+.activity-result.loss {
+  color: #f87171; /* red */
+}

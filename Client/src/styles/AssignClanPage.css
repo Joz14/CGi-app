@@ -1,0 +1,176 @@
+/* === ASSIGN CLAN PAGE === */
+
+.assign-page {
+    display: flex;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-md);
+    background-color: var(--color-background);
+
+  }
+  
+  /* Card Style */
+  .assign-card {
+    width: 100%;
+    min-height: 450px;
+    max-width: 420px;
+    border-radius: var(--radius-md);
+    background-color: var(--card-bg-light);
+    border: 1px solid var(--card-border-light);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-md);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    .assign-card {
+      background-color: var(--card-bg-light);
+      border-color: var(--card-border-light);
+    }
+  }
+  
+  /* Title */
+  .assign-title {
+    font-size: var(--font-size-heading-lg);
+    text-align: center;
+    margin-bottom: var(--space-sm);
+    font-weight: 600;
+  }
+  
+  /* === Tabs === */
+  
+  .assign-tab-switcher {
+    position: relative;
+    display: flex;
+    background-color: var(--card-border-light);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+    overflow: hidden;
+  }
+  
+  .assign-tab-btn {
+    flex: 1;
+    padding: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    transition: var(--transition-smooth), color var(--transition-smooth);
+  }
+  
+  .assign-tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  
+  .assign-tab-btn.active {
+    color: white;
+  }
+  
+  .assign-tab-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .assign-tab-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, var(--color-primary), var(--color-accent-light));
+    border-radius: var(--radius-sm);
+    transition: transform var(--transition-smooth);
+    z-index: 1;
+  }
+  
+  .assign-tab-indicator.right {
+    transform: translateX(100%);
+  }
+  
+  .assign-tab-indicator.left {
+    transform: translateX(0%);
+  }
+  
+  /* === Forms === */
+  
+  .assign-form-wrapper {
+    margin-top: var(--space-sm);
+    flex: 1;
+    position: relative;
+  }
+  
+  .assign-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    transition: opacity var(--transition-smooth);
+  }
+  
+  .assign-form label {
+    font-size: var(--font-size-subtext);
+    color: var(--text-primary);
+  }
+  
+  /* Inputs and Textarea */
+  .assign-form input,
+  .assign-form textarea {
+    background-color: var(--card-bg-light);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--card-border-light);
+    font-size: var(--font-size-body);
+    transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+    resize: none;
+  }
+  
+  .assign-form input:focus,
+  .assign-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+
+  }
+  
+  /* Error styles */
+  .input-error {
+    border-color: #e53935 !important;
+  }
+  
+  .input-error-text {
+    color: #e53935;
+    font-size: 0.85rem;
+    margin-top: -0.5rem;
+    margin-bottom: var(--space-xs);
+  }
+  
+  /* Loading Spinner */
+  .spinner {
+    animation: spin 1s linear infinite;
+    height: 1rem;
+    width: 1rem;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

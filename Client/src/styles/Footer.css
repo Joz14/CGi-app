@@ -2,36 +2,35 @@
 
 .footer-container {
   background-color: var(--color-background);
-  border-top: 1px solid #e0e0e0;
+  border-top: 3px solid var(--card-bg-light);
   padding-top: 5px;
   font-family: var(--font-family-base);
   color: var(--color-neutral);
 }
 
-.social-footer {
-  text-align: center;
-  padding: 5px;
-}
+
 
 .social-footer h4 {
+  text-align: center;
+  margin-bottom: 10;
   font-size: 1.2rem;
   margin-bottom: var(--space-sm);
   color: var(--color-primary);
 }
 
-.social-icons {
+.footer-social-icons {
   display: flex;
   justify-content: center;
   gap: var(--space-md);
   font-size: 1.5rem;
 }
 
-.social-icons a {
-  color: var(--color-neutral);
+.footer-social-icons a {
+  color: var(--text-primary);
   transition: color var(--transition-smooth), transform var(--transition-fast);
 }
 
-.social-icons a:hover {
+.footer-social-icons a:hover {
   color: var(--color-primary);
   transform: scale(1.1);
 }
@@ -40,5 +39,5 @@
   text-align: center;
   padding: 5px;
   font-size: var(--font-size-subtext);
-  color: var(--color-neutral);
+  color: var(--text-primary);
 }

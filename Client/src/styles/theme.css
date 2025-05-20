@@ -1,38 +1,129 @@
-/* theme.css */
-
 :root {
-    /* Brand Colors */
-    --color-primary: #2e80cd;        /* Dark Blue */
-    --color-accent: #0c213a;         /* Teal Green */
-    --color-neutral: #666F76;        /* Gray Dot */
-    --color-background: #FFFFFF;     /* White */
-  
-    /* Typography */
-    --font-family-base: 'Segoe UI', sans-serif;
-    --font-size-heading-xl: 3rem;
-    --font-size-heading-lg: 1.75rem;
-    --font-size-body: 1rem;
-    --font-size-subtext: 0.95rem;
-  
-    /* Spacing */
-    --space-xs: 0.5rem;
-    --space-sm: 1rem;
-    --space-md: 2rem;
-    --space-lg: 3rem;
-    --space-xl: 4rem;
-  
-    /* Border Radius */
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 30px;
-  
-    /* Shadow */
-    --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.15);
-    --shadow-lg: 0 6px 30px rgba(0, 0, 0, 0.2);
-  
-    /* Transitions */
-    --transition-fast: 0.2s ease;
-    --transition-smooth: 0.3s ease;
+  /* Brand Colors */
+  --color-primary: #3086d7;             /* League Blue */
+  --color-accent-dark: #0c213a;         /* Dark background accents */
+  --color-accent-light: #7fb8ed;        /* Highlights and gradients */
+  --color-grey: #9aa6ae;                /* Subtext */
+  --color-background: #f5f7fa;          /* Soft light background */
+  --text-primary: #1f1f1f;              /* Main text */
+
+  /* Card & Panel Backgrounds */
+  --card-bg-light: #ffffff;
+  --card-bg-dark: #1e1e1e;
+  --card-border-light: #e3e3e3;
+  --card-border-dark: #2a2a2a;
+
+  /* Typography */
+
+  --font-family: 'Space Grotesk';
+  /*--font-family-alt: 'Space Grotesk', sans-serif;*/
+  --font-size-heading-xl: 3rem;
+  --font-size-heading-lg: 1.75rem;
+  --font-size-body: 1rem;
+  --font-size-subtext: 0.95rem;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 3rem;
+  --space-xl: 4rem;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 30px;
+
+  /* Shadow */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-smooth: 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #272727;
+    --color-primary: #2e80cd;     
+    --color-accent-dark: #081a30;
+    --color-accent-light: #7fb8ed;  
+    --color-grey: #999999;
+    --text-primary: #f5f5f5;
+
+    --card-bg-light: #1e1e1e;
+    --card-border-light: #282b34;
   }
-  
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.25rem; }
+.p-4 { padding: 1rem; }
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card Utility (Replace .glass with this) */
+.card {
+  background-color: var(--card-bg-light);
+  border: 1px solid var(--card-border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-md);
+  color: var(--text-primary);
+  transition: var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: var(--card-bg-light);
+    border-color: var(--card-border-light);
+  }
+}
+
+/* Button */
+.btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(to right, var(--color-primary), var(--color-accent-light));
+  color: white;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  opacity: 0.95;
+}
+
+/* Headings */
+.heading-xl {
+  font-size: var(--font-size-heading-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+}
+
+.heading-lg {
+  font-size: var(--font-size-heading-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+/* Subtle Text */
+.text-subtle {
+  color: var(--color-gery);
+  font-size: var(--font-size-subtext);
+}
+
+body {
+  font-family: var(--font-family);
+}
