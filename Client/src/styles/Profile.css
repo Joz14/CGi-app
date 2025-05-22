@@ -18,9 +18,7 @@
   width: 100%;
   text-align: center;
   font-family: var(--font-family);
-  position: center;
-  top: 1em;
-  right: 1em;
+  position: relative;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -117,20 +115,20 @@ label {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background-color: var(--card-bg-light);
+  background-color: transparent;
   color: rgb(238, 54, 54);
-  border: none;
+  border: 1px solid rgb(238, 54, 54);
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
 }
 
 .logout-button:hover {
-  background-color: var(--card-bg-light);
+  background-color: rgb(238, 54, 54);
+  color: white;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -149,8 +147,6 @@ label {
   }
 }
 
-
-
 .input-error {
   border-color: red;
 }
@@ -159,7 +155,6 @@ label {
   font-size: 0.85rem;
   margin-bottom: 0.75rem;
 }
-
 
 /* Misc layout */
 .display-name-row {

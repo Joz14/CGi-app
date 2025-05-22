@@ -12,7 +12,32 @@ const {mongoRoutes, connectDB} = require('./routes/mongoRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const clanRoutes = require('./routes/clanRoutes');
 
-connectDB();
+// Dev Mode components
+const devAuth = require('./middleware/devAuth');
+const devSeedDatabase = require('./dev/devSeed');
+
+// Database connection - Use DEV URI if in DEV mode
+const isDev = process.env.DEV_MODE === 'true';
+if (isDev) {
+  console.log('🔧 Starting in DEV MODE');
+  // Use development database connection
+  const mongoUri = process.env.MONGO_URI_DEV || 
+    (process.env.MONGO_URI ? process.env.MONGO_URI.replace(/(\w+)$/, '$1-dev') : 'mongodb://localhost:27017/cgi-dev');
+  
+  mongoose.connect(mongoUri)
+    .then(() => {
+      console.log('✅ Connected to DEV database');
+      // Run the seeder in development mode
+      return devSeedDatabase();
+    })
+    .catch(error => {
+      console.error('❌ MongoDB DEV connection error:', error);
+      process.exit(1);
+    });
+} else {
+  // Normal production DB connection
+  connectDB();
+}
 
 // Middleware
 app.use(cors({
@@ -21,6 +46,11 @@ app.use(cors({
   }));
 
 app.use(express.json());
+
+// Apply DEV auth middleware if in DEV mode
+if (isDev) {
+  app.use(devAuth);
+}
 
 // Route middleware
 app.use(logoutRouter);
@@ -40,5 +70,5 @@ const PORT = process.env.PORT || 3000;
 
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}${isDev ? ' (DEV MODE)' : ''}`);
 });

@@ -31,6 +31,7 @@ useEffect(() => {
   }, []);
 
 const handleLogout = () => {
+  // Use the backend logout endpoint with proper return URL
   window.location.href = 'http://localhost:3000/custom-logout';
 };
 

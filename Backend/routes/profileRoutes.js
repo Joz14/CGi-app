@@ -31,6 +31,20 @@ router.get('/profile', (req, res) => {
   const { email, picture } = req.oidc.user;
   const appProfile = userProfiles[email] || {};
 
+  // Check if running in DEV mode
+  const isDev = process.env.DEV_MODE === 'true';
+  if (isDev && email === 'dev@example.com') {
+    // Return enhanced dev user profile
+    return res.json({
+      email,
+      picture,
+      displayName: 'Dev User',
+      clashTag: 'DEV#12345',
+      roles: ['admin'],
+      isDev: true
+    });
+  }
+
   res.json({
     email,
     picture,
@@ -38,24 +52,5 @@ router.get('/profile', (req, res) => {
     clashTag: appProfile.clashTag || null
   });
 });
-
-
-router.post('/profile/setup', (req, res) => {
-  if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
-
-  console.log('Profile setup request:', req.body);
-
-  const email = req.oidc.user.email;
-
-  userProfiles[email] = {
-    displayName: req.body.displayName,
-    clashTag: req.body.clashTag
-  };
-
-  console.log(`Profile updated for ${email}:`, userProfiles[email]);
-
-  res.json({ status: 'saved' });
-});
-
 
 module.exports = router;

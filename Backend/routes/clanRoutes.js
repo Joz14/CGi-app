@@ -113,52 +113,285 @@ router.post('/api/clan/join', async (req, res) => {
 router.post('/api/clan/leave', async (req, res) => {
     if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
   
-    const user = await User.findOne({ auth0Id: req.oidc.user.sub });
-    if (!user || !user.clan) return res.status(400).json({ error: 'User not in a clan' });
-  
-    const clan = await Clan.findById(user.clan);
-    const clanMembers = await User.find({ clan: clan._id });
-  
-    const isLeader = user.roles.includes('clanLeader');
-  
-    if (isLeader) {
-      const otherLeaders = clanMembers.filter(u => u._id.toString() !== user._id.toString() && u.roles.includes('clanLeader'));
-      if (otherLeaders.length === 0) {
-        return res.status(403).json({ error: 'You must promote another member before leaving.' });
+    try {
+      const user = await User.findOne({ auth0Id: req.oidc.user.sub });
+      if (!user || !user.clan) return res.status(400).json({ error: 'User not in a clan' });
+    
+      const clan = await Clan.findById(user.clan);
+      if (!clan) return res.status(404).json({ error: 'Clan not found' });
+      
+      const clanMembers = await User.find({ clan: clan._id });
+    
+      const isLeader = user.roles.includes('clanLeader');
+    
+      if (isLeader) {
+        const otherLeaders = clanMembers.filter(u => u._id.toString() !== user._id.toString() && u.roles.includes('clanLeader'));
+        if (otherLeaders.length === 0) {
+          return res.status(403).json({ error: 'You must promote another member before leaving.' });
+        }
       }
+    
+      // Start a session to ensure atomic operations
+      const session = await mongoose.startSession();
+      session.startTransaction();
+    
+      try {
+        // Remove clan reference and role from user
+        user.clan = null;
+        user.roles = user.roles.filter(r => r !== 'clanLeader');
+        await user.save({ session });
+    
+        // Remove user from clan's members array
+        await Clan.updateOne(
+          { _id: clan._id },
+          { $pull: { members: { user: user._id } } },
+          { session }
+        );
+    
+        await session.commitTransaction();
+        session.endSession();
+    
+        res.json({ success: true });
+      } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Error during clan leave transaction:', err);
+        res.status(500).json({ error: 'Failed to leave clan' });
+      }
+    } catch (err) {
+      console.error('Error in leave clan route:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
-  
-    // Remove clan reference and role
-    user.clan = null;
-    user.roles = user.roles.filter(r => r !== 'clanLeader');
-    await user.save();
-  
-    res.json({ success: true });
   });
 
 // routes/clanRoutes.js
 router.delete('/api/clan/delete', async (req, res) => {
     if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
   
-    const user = await User.findOne({ auth0Id: req.oidc.user.sub }).populate('clan');
-    if (!user || !user.clan || !user.roles.includes('clanLeader')) {
-      return res.status(403).json({ error: 'Only clan leaders can delete the clan.' });
+    try {
+      const user = await User.findOne({ auth0Id: req.oidc.user.sub }).populate('clan');
+      if (!user || !user.clan || !user.roles.includes('clanLeader')) {
+        return res.status(403).json({ error: 'Only clan leaders can delete the clan.' });
+      }
+    
+      const clanId = user.clan._id;
+    
+      // Use a session to ensure atomicity
+      const session = await mongoose.startSession();
+      session.startTransaction();
+    
+      try {
+        // Remove clan reference from all users
+        await User.updateMany(
+          { clan: clanId }, 
+          {
+            $unset: { clan: "" },
+            $pull: { roles: 'clanLeader' }
+          },
+          { session }
+        );
+    
+        // Delete the clan
+        await Clan.findByIdAndDelete(clanId, { session });
+    
+        await session.commitTransaction();
+        session.endSession();
+    
+        res.json({ success: true });
+      } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Error during clan delete transaction:', err);
+        res.status(500).json({ error: 'Failed to delete clan' });
+      }
+    } catch (err) {
+      console.error('Error in delete clan route:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
-  
-    const clanId = user.clan._id;
-  
-    // Remove clan reference from all users
-    await User.updateMany({ clan: clanId }, {
-      $unset: { clan: "" },
-      $pull: { roles: 'clanLeader' }
-    });
-  
-    // Delete the clan
-    await Clan.findByIdAndDelete(clanId);
-  
-    res.json({ success: true });
   });
   
   
+
+// GET /api/clan - Get clan info for authenticated user
+router.get('/api/clan', async (req, res) => {
+  if (!req.oidc?.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const user = await User.findOne({ auth0Id: req.oidc.user.sub });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // Check if user is in a clan
+    if (!user.clan) {
+      return res.status(404).json({ error: 'User is not in a clan' });
+    }
+
+    // Get clan with populated members
+    const clan = await Clan.findById(user.clan)
+      .populate('leader', 'nickname')
+      .populate('members.user', 'nickname');
+
+    if (!clan) {
+      return res.status(404).json({ error: 'Clan not found' });
+    }
+
+    res.json({
+      name: clan.name,
+      tag: clan.tag,
+      joinCode: clan.joinCode,
+      leader: clan.leader,
+      members: clan.members,
+      createdAt: clan.createdAt,
+      updatedAt: clan.updatedAt
+    });
+  } catch (err) {
+    console.error('Error fetching clan:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Promote member to leader
+router.post('/api/clan/promote', async (req, res) => {
+  if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+
+  try {
+    const { memberId } = req.body;
+    
+    if (!memberId) {
+      return res.status(400).json({ error: 'Member ID is required' });
+    }
+    
+    // Get current user
+    const currentUser = await User.findOne({ auth0Id: req.oidc.user.sub });
+    if (!currentUser) return res.status(404).json({ error: 'User not found' });
+    
+    // Check if user is clan leader
+    if (!currentUser.roles.includes('clanLeader')) {
+      return res.status(403).json({ error: 'Only clan leaders can promote members' });
+    }
+    
+    // Get clan
+    const clan = await Clan.findById(currentUser.clan);
+    if (!clan) return res.status(404).json({ error: 'Clan not found' });
+    
+    // Check if member to promote exists and is in the clan
+    const memberToPromote = await User.findById(memberId);
+    if (!memberToPromote) return res.status(404).json({ error: 'Member not found' });
+    
+    if (!memberToPromote.clan || memberToPromote.clan.toString() !== clan._id.toString()) {
+      return res.status(400).json({ error: 'User is not a member of this clan' });
+    }
+    
+    // Start transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+      // Remove leader role from current leader
+      currentUser.roles = currentUser.roles.filter(role => role !== 'clanLeader');
+      await currentUser.save({ session });
+      
+      // Add leader role to new leader if they don't have it
+      if (!memberToPromote.roles.includes('clanLeader')) {
+        memberToPromote.roles.push('clanLeader');
+      }
+      await memberToPromote.save({ session });
+      
+      // Update clan leader
+      clan.leader = memberToPromote._id;
+      await clan.save({ session });
+      
+      await session.commitTransaction();
+      session.endSession();
+      
+      res.json({ 
+        success: true, 
+        message: `${memberToPromote.nickname} is now the clan leader`
+      });
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      console.error('Error during promotion transaction:', err);
+      res.status(500).json({ error: 'Failed to promote member' });
+    }
+  } catch (err) {
+    console.error('Error in promote route:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Kick member from clan
+router.post('/api/clan/kick', async (req, res) => {
+  if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+
+  try {
+    const { memberId } = req.body;
+    
+    if (!memberId) {
+      return res.status(400).json({ error: 'Member ID is required' });
+    }
+    
+    // Get current user
+    const currentUser = await User.findOne({ auth0Id: req.oidc.user.sub });
+    if (!currentUser) return res.status(404).json({ error: 'User not found' });
+    
+    // Check if user is clan leader
+    if (!currentUser.roles.includes('clanLeader')) {
+      return res.status(403).json({ error: 'Only clan leaders can kick members' });
+    }
+    
+    // Get clan
+    const clan = await Clan.findById(currentUser.clan);
+    if (!clan) return res.status(404).json({ error: 'Clan not found' });
+    
+    // Prevent kicking yourself
+    if (memberId === currentUser._id.toString()) {
+      return res.status(400).json({ error: 'You cannot kick yourself from the clan' });
+    }
+    
+    // Check if member to kick exists and is in the clan
+    const memberToKick = await User.findById(memberId);
+    if (!memberToKick) return res.status(404).json({ error: 'Member not found' });
+    
+    if (!memberToKick.clan || memberToKick.clan.toString() !== clan._id.toString()) {
+      return res.status(400).json({ error: 'User is not a member of this clan' });
+    }
+    
+    // Start transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+      // Remove clan reference and leader role from member
+      memberToKick.clan = null;
+      memberToKick.roles = memberToKick.roles.filter(role => role !== 'clanLeader');
+      await memberToKick.save({ session });
+      
+      // Remove member from clan's members array
+      await Clan.updateOne(
+        { _id: clan._id },
+        { $pull: { members: { user: memberToKick._id } } },
+        { session }
+      );
+      
+      await session.commitTransaction();
+      session.endSession();
+      
+      res.json({ 
+        success: true, 
+        message: `${memberToKick.nickname} has been removed from the clan`
+      });
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      console.error('Error during kick transaction:', err);
+      res.status(500).json({ error: 'Failed to kick member' });
+    }
+  } catch (err) {
+    console.error('Error in kick route:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router;

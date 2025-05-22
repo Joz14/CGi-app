@@ -46,15 +46,29 @@ logoutRouter.get('/custom-logout', (req, res) => {
   const auth0Domain = 'https://dev-ap4cjr4c7rqutytk.us.auth0.com';
   const logoutUrl = `${auth0Domain}/v2/logout?returnTo=${returnTo}&client_id=${process.env.AUTH0_CLIENT_ID}`;
 
-  // Manually clear Auth0 session cookies
+  // Clear all possible session cookies
+  const cookies = Object.keys(req.cookies || {});
+  cookies.forEach(cookie => {
+    res.clearCookie(cookie, { 
+      path: '/',
+      httpOnly: true,
+      sameSite: 'Lax',
+      secure: process.env.NODE_ENV === 'production'
+    });
+  });
+
+  // Clear specific Auth0 cookies
   res.clearCookie('appSession', { path: '/', httpOnly: true, sameSite: 'Lax' });
   res.clearCookie('appSession.sig', { path: '/', httpOnly: true, sameSite: 'Lax' });
-
-  // Optional: extra Auth0 cookies (depends on browser cache)
   res.clearCookie('auth0.ssodata');
   res.clearCookie('auth0.is.authenticated');
 
-  console.log('✅ Cleared stateless cookies. Redirecting to Auth0 logout.');
+  // Clear any session data
+  if (req.session) {
+    req.session.destroy();
+  }
+
+  console.log('✅ Cleared all cookies and session. Redirecting to Auth0 logout.');
   res.redirect(logoutUrl);
 });
 

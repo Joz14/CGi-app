@@ -9,19 +9,17 @@ export default function ClanPage() {
   const fetchAccount = () => {
     setLoading(true);
   
-    setTimeout(() => {
-      fetch('http://localhost:3000/account', { credentials: 'include' })
-        .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          console.log('Fetched account:', data);
-          setUser(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setUser(null);
-          setLoading(false);
-        });
-    }); // 2 second delay
+    fetch('http://localhost:3000/account', { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        console.log('Fetched account:', data);
+        setUser(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -32,11 +30,8 @@ export default function ClanPage() {
     return <Loading message="Loading..." />;
   }
 
-
   return user?.clan ? (
-    <MyClanPage 
-    userClan={user.clan}
-    userRoles={user.roles} />
+    <MyClanPage userRoles={user.roles} />
   ) : (
     <AccessPage onClanCreated={fetchAccount} />
   );
