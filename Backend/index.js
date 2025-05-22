@@ -10,6 +10,8 @@ const { authRouter, logoutRouter } = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const {mongoRoutes, connectDB} = require('./routes/mongoRoutes');
 const accountRoutes = require('./routes/accountRoutes');
+const clanRoutes = require('./routes/clanRoutes');
+
 connectDB();
 
 // Middleware
@@ -27,6 +29,7 @@ app.use(clashRoutes);   // custom logic routes
 app.use(profileRoutes);  // profile setup
 app.use(mongoRoutes);  
 app.use(accountRoutes);  // MongoDB connection test
+app.use(clanRoutes)
 
 app.get('/', (req, res) => {
     res.send('Backend is up.');
