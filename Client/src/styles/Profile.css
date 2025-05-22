@@ -85,14 +85,6 @@ label {
   outline: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  .input-field {
-    background-color: var(--card-bg-dark);
-    border-color: var(--card-border-dark);
-    color: var(--text-primary);
-  }
-}
-
 .gradient-button {
   background: linear-gradient(135deg, var(--color-primary), var(--color-accent-light));
   color: var(--color-background);
@@ -148,6 +140,12 @@ label {
 
   .logout-button:hover {
     background-color: var(--card-bg-dark);
+  }
+
+  .input-field {
+    background-color: var(--card-bg-dark);
+    border-color: var(--card-border-dark);
+    color: var(--text-primary);
   }
 }
 

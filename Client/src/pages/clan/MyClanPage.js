@@ -4,7 +4,7 @@ import '../../styles/MyClanPage.css';
 export default function MyClanPage({ userClan }) {
   return (
     <div className="clan-container">
-      <div className="glass-card clan-dashboard">
+      <div className="clan-dashboard">
         <h2>{userClan?.name || 'Loading...'}</h2>
 
         <div className="clan-stats">

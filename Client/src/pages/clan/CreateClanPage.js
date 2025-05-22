@@ -24,13 +24,30 @@ export default function CreateClanForm() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async e => {
     e.preventDefault();
     if (!validateForm()) return;
     setIsSubmitting(true);
-    await new Promise(r => setTimeout(r, 1000)); // Simulated delay
-    console.log('Submitted: ', formData);
+  
+    try {
+      const res = await fetch('http://localhost:3000/api/clans', {
+        method: 'POST',
+        credentials: 'include', // This includes the Auth0 session cookie
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description
+        })
+      });
+  
+      const data = await res.json();
+      console.log('✅ Clan created:', data);
+    } catch (err) {
+      console.error('❌ Failed to create clan', err);
+    }
+  
     setIsSubmitting(false);
   };
 

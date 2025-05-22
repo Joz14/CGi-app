@@ -27,26 +27,33 @@ router.get('/auth/login', async (req, res) => {
     }
   });
 
-router.get('/account', async (req, res) => {
-if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
-
-try {
-    const authUser = req.oidc.user;
-    const user = await User.findOne({ auth0Id: authUser.sub });
-
-    if (!user) return res.status(404).json({ error: 'User not found in DB' });
-
-    res.json({
-    email: authUser.email,
-    picture: authUser.picture,
-    displayName: user.nickname,
-    clashTag: user.clashRoyaleTag || null
-    });
-} catch (err) {
-    console.error('Error fetching account:', err);
-    res.status(500).json({ error: 'Server error' });
-}
-});
+  router.get('/account', async (req, res) => {
+    if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+  
+    try {
+      const authUser = req.oidc.user;
+  
+      // Populate the 'clan' field with name and tag (not full details)
+      const user = await User.findOne({ auth0Id: authUser.sub }).populate('clan', 'name tag');
+  
+      if (!user) return res.status(404).json({ error: 'User not found in DB' });
+  
+      res.json({
+        email: authUser.email,
+        picture: authUser.picture,
+        displayName: user.nickname,
+        clashTag: user.clashRoyaleTag || null,
+        clan: user.clan ? {
+          _id: user.clan._id,
+          name: user.clan.name,
+          tag: user.clan.tag
+        } : null
+      });
+    } catch (err) {
+      console.error('Error fetching account:', err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
 
 router.patch('/account', async (req, res) => {
 if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
