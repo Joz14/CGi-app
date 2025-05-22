@@ -43,6 +43,7 @@ router.get('/auth/login', async (req, res) => {
         picture: authUser.picture,
         displayName: user.nickname,
         clashTag: user.clashRoyaleTag || null,
+        roles: user.roles,
         clan: user.clan ? {
           _id: user.clan._id,
           name: user.clan.name,

@@ -75,4 +75,57 @@ router.post('/api/clans', async (req, res) => {
   }
 });
 
+
+// routes/clanRoutes.js
+router.post('/clan/leave', async (req, res) => {
+    if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+  
+    const user = await User.findOne({ auth0Id: req.oidc.user.sub });
+    if (!user || !user.clan) return res.status(400).json({ error: 'User not in a clan' });
+  
+    const clan = await Clan.findById(user.clan);
+    const clanMembers = await User.find({ clan: clan._id });
+  
+    const isLeader = user.roles.includes('clanLeader');
+  
+    if (isLeader) {
+      const otherLeaders = clanMembers.filter(u => u._id.toString() !== user._id.toString() && u.roles.includes('clanLeader'));
+      if (otherLeaders.length === 0) {
+        return res.status(403).json({ error: 'You must promote another member before leaving.' });
+      }
+    }
+  
+    // Remove clan reference and role
+    user.clan = null;
+    user.roles = user.roles.filter(r => r !== 'clanLeader');
+    await user.save();
+  
+    res.json({ success: true });
+  });
+
+// routes/clanRoutes.js
+router.delete('/clan/delete', async (req, res) => {
+    if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+  
+    const user = await User.findOne({ auth0Id: req.oidc.user.sub }).populate('clan');
+    if (!user || !user.clan || !user.roles.includes('clanLeader')) {
+      return res.status(403).json({ error: 'Only clan leaders can delete the clan.' });
+    }
+  
+    const clanId = user.clan._id;
+  
+    // Remove clan reference from all users
+    await User.updateMany({ clan: clanId }, {
+      $unset: { clan: "" },
+      $pull: { roles: 'clanLeader' }
+    });
+  
+    // Delete the clan
+    await Clan.findByIdAndDelete(clanId);
+  
+    res.json({ success: true });
+  });
+  
+  
+
 module.exports = router;

@@ -24,7 +24,9 @@ export default function ClanPage() {
 
 
   return user?.clan ? (
-    <MyClanPage userClan={user.clan} />
+    <MyClanPage 
+    userClan={user.clan}
+    userRoles={user.roles} />
   ) : (
     <AccessPage />
   );
