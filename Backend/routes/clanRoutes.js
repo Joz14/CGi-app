@@ -76,8 +76,41 @@ router.post('/api/clans', async (req, res) => {
 });
 
 
+router.post('/api/clan/join', async (req, res) => {
+    if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+  
+    const { joinCode } = req.body;
+    if (!joinCode) return res.status(400).json({ error: 'Join code is required' });
+    console.log('Join code:', joinCode);
+    try {
+      const user = await User.findOne({ auth0Id: req.oidc.user.sub });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      if (user.clan) return res.status(400).json({ error: 'User already in a clan' });
+  
+      const clan = await Clan.findOne({ joinCode });
+      if (!clan) return res.status(404).json({ error: 'Invalid join code' });
+  
+      // Optional: check if clan is full
+      // const members = await User.countDocuments({ clan: clan._id });
+      // if (members >= 50) return res.status(403).json({ error: 'Clan is full' });
+  
+      user.clan = clan._id;
+      await user.save();
+  
+      clan.members.push({ user: user._id });
+      await clan.save();
+  
+      res.json({ success: true, clan: { name: clan.name, tag: clan.tag } });
+    } catch (err) {
+      console.error('Join clan error:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+
+
 // routes/clanRoutes.js
-router.post('/clan/leave', async (req, res) => {
+router.post('/api/clan/leave', async (req, res) => {
     if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
   
     const user = await User.findOne({ auth0Id: req.oidc.user.sub });
@@ -104,7 +137,7 @@ router.post('/clan/leave', async (req, res) => {
   });
 
 // routes/clanRoutes.js
-router.delete('/clan/delete', async (req, res) => {
+router.delete('/api/clan/delete', async (req, res) => {
     if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
   
     const user = await User.findOne({ auth0Id: req.oidc.user.sub }).populate('clan');

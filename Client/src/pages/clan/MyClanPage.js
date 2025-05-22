@@ -9,7 +9,7 @@ export default function MyClanPage({ userClan, userRoles}) {
 
   const leaveClan = async () => {
     setErrorMsg('');
-    const res = await fetch('http://localhost:3000/clan/leave', {
+    const res = await fetch('http://localhost:3000/api/clan/leave', {
       method: 'POST',
       credentials: 'include',
     });
@@ -21,7 +21,7 @@ export default function MyClanPage({ userClan, userRoles}) {
   const deleteClan = async () => {
     if (!window.confirm('Are you sure you want to delete your clan?')) return;
 
-    const res = await fetch('http://localhost:3000/clan/delete', {
+    const res = await fetch('http://localhost:3000/api/clan/delete', {
       method: 'DELETE',
       credentials: 'include',
     });

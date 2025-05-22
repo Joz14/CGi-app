@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import '../../styles/AssignClanPage.css';
 
-export default function CreateClanForm() {
+export default function CreateClanForm({onSuccess}) {
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -44,6 +44,9 @@ export default function CreateClanForm() {
   
       const data = await res.json();
       console.log('✅ Clan created:', data);
+      if (res.ok) {
+        onSuccess?.(); // Triggers fetchAccount in ClanPage
+      }
     } catch (err) {
       console.error('❌ Failed to create clan', err);
     }

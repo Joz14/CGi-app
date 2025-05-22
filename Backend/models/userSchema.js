@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   clan: { type: mongoose.Schema.Types.ObjectId, ref: 'Clan' },
 }, { timestamps: true });
 
-userSchema.index({ auth0Id: 1 });
+
 userSchema.index({ clan: 1 });
 
 module.exports = mongoose.model('User', userSchema);

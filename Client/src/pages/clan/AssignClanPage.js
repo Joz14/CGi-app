@@ -4,7 +4,7 @@ import CreateClanForm from './CreateClanPage';
 import JoinClanForm from './JoinClanPage';
 import '../../styles/AssignClanPage.css';
 
-export default function AccessPage() {
+export default function AccessPage({onClanCreated}) {
   const [activeTab, setActiveTab] = useState('create');
 
   return (
@@ -32,7 +32,9 @@ export default function AccessPage() {
           </button>
         </div>
         <div className="assign-form-wrapper">
-          {activeTab === 'create' ? <CreateClanForm /> : <JoinClanForm />}
+          {activeTab === 'create'
+            ? <CreateClanForm onSuccess={onClanCreated} />  // ✅ Pass it down
+            : <JoinClanForm onSuccess={onClanCreated}/>}
         </div>
       </div>
     </div>
