@@ -5,7 +5,7 @@ import Profile from './pages/Profile.js';
 import Home from './pages/Home.js';
 import ClanPage from './pages/ClanPage.js';
 import LeaderboardPage from './pages/LeaderboardPage.js';
-import Footer from './components/Footer';
+import Footer from './components/Footer.js';
 import './App.css';
 function App() {
   return (
