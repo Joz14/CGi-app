@@ -5,6 +5,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const { faker } = require('@faker-js/faker');
+const logger = require('../utils/logger');
 
 // Import models
 const User = require('../models/userSchema');
@@ -34,49 +35,102 @@ async function connectDevDB() {
   
   try {
     await mongoose.connect(mongoUri);
-    console.log('✅ Connected to DEV database:', mongoUri);
+    logger.info('Connected to DEV database', { uri: mongoUri }, 'DB');
     return true;
   } catch (error) {
-    console.error('❌ Failed to connect to DEV database:', error);
+    logger.error('Failed to connect to DEV database', { 
+      error: error.message,
+      uri: mongoUri 
+    }, 'DB');
     return false;
+  }
+}
+
+// Check if database needs seeding
+async function checkNeedsSeed() {
+  try {
+    const [userCount, clanCount, leagueCount] = await Promise.all([
+      User.countDocuments(),
+      Clan.countDocuments(),
+      League.countDocuments()
+    ]);
+
+    logger.debug('Checked database state', { 
+      userCount, 
+      clanCount, 
+      leagueCount 
+    }, 'SYSTEM');
+
+    return userCount === 0 || clanCount === 0 || leagueCount === 0;
+  } catch (error) {
+    logger.error('Error checking database state', { 
+      error: error.message 
+    }, 'SYSTEM');
+    throw error;
   }
 }
 
 // Clear all existing data
 async function clearDatabase() {
-  console.log('🧹 Clearing existing data...');
-  await Promise.all([
-    User.deleteMany({}),
-    Clan.deleteMany({}),
-    League.deleteMany({}),
-    Season.deleteMany({}),
-    Match.deleteMany({})
-  ]);
-  console.log('✅ Database cleared');
+  logger.info('Clearing existing data', {}, 'SYSTEM');
+  try {
+    await Promise.all([
+      User.deleteMany({}),
+      Clan.deleteMany({}),
+      League.deleteMany({}),
+      Season.deleteMany({}),
+      Match.deleteMany({})
+    ]);
+    logger.info('Database cleared successfully', {}, 'SYSTEM');
+  } catch (error) {
+    logger.error('Error clearing database', { 
+      error: error.message 
+    }, 'SYSTEM');
+    throw error;
+  }
 }
 
 // Create fake users
 async function createUsers(count = 100) {
-  console.log(`👥 Creating ${count} fake users...`);
+  logger.info(`Creating ${count} fake users`, {}, 'SYSTEM');
   
-  const usersToCreate = Array(count).fill().map((_, i) => ({
-    auth0Id: `dev-user-${i + 1}`,
+  // First ensure dev user exists
+  let devUser = await User.findOne({ email: 'dev@example.com' });
+  if (!devUser) {
+    logger.info('Creating dev user', {}, 'SYSTEM');
+    devUser = await User.create({
+      auth0Id: 'dev-user-id-1',
+      email: 'dev@example.com',
+      nickname: 'Dev User',
+      clashRoyaleTag: 'DEV#12345',
+      clashOfClansTag: 'DEV#12345',
+      roles: ['user', 'admin']
+    });
+  }
+
+  const usersToCreate = Array(count - 1).fill().map((_, i) => ({
+    auth0Id: `dev-user-${i + 2}`,
     email: faker.internet.email(),
     nickname: faker.internet.userName(),
     clashRoyaleTag: faker.helpers.maybe(() => generateRandomString(8), { probability: 0.7 }),
     clashOfClansTag: faker.helpers.maybe(() => generateRandomString(8), { probability: 0.7 }),
-    roles: i < 20 ? ['user', 'clanLeader'] : ['user']
+    roles: i < 19 ? ['user', 'clanLeader'] : ['user'] // Adjust for dev user being first
   }));
   
   const users = await User.insertMany(usersToCreate);
-  console.log(`✅ Created ${users.length} users`);
+  users.unshift(devUser); // Add dev user to beginning of array
+  
+  logger.info(`Created users successfully`, { 
+    count: users.length,
+    devUserCreated: !devUser 
+  }, 'SYSTEM');
   
   return users;
 }
 
 // Create clans and assign users
 async function createClans(users, count = 20) {
-  console.log(`🏰 Creating ${count} clans...`);
+  logger.info(`Creating ${count} clans`, {}, 'SYSTEM');
   
   const clanLeaders = users.filter((_, i) => i < count);
   const remainingUsers = users.filter((_, i) => i >= count);
@@ -140,14 +194,14 @@ async function createClans(users, count = 20) {
   }
   
   await Promise.all(userUpdates);
-  console.log(`✅ Created ${clans.length} clans`);
+  logger.info(`Created ${clans.length} clans successfully`, {}, 'SYSTEM');
   
   return clans;
 }
 
 // Create leagues and distribute clans
 async function createLeagues(clans) {
-  console.log('🏆 Creating leagues and groups...');
+  logger.info('Creating leagues and groups', {}, 'SYSTEM');
   
   // Distribute clans into 2 leagues with 10 groups (5 groups per league)
   const leaguesData = Array(2).fill().map((_, i) => {
@@ -174,7 +228,7 @@ async function createLeagues(clans) {
   });
   
   const leagues = await League.insertMany(leaguesData);
-  console.log(`✅ Created ${leagues.length} leagues with ${leagues.reduce((sum, l) => sum + l.groups.length, 0)} groups`);
+  logger.info(`Created ${leagues.length} leagues with ${leagues.reduce((sum, l) => sum + l.groups.length, 0)} groups successfully`, {}, 'SYSTEM');
   
   // Create a current season for each league
   const now = new Date();
@@ -212,21 +266,20 @@ async function createLeagues(clans) {
     );
   }
   
-  console.log(`✅ Created ${seasons.length} active seasons`);
+  logger.info(`Created ${seasons.length} active seasons successfully`, {}, 'SYSTEM');
   
   return { leagues, seasons };
 }
 
 // Create some example matches
-async function createMatches(leagues, seasons) {
-  console.log('⚔️ Creating sample matches...');
+async function createMatches(leagues) {
+  logger.info('Creating sample matches', {}, 'SYSTEM');
   
   const matchesData = [];
   
   // For each league/season
   for (let i = 0; i < leagues.length; i++) {
     const league = leagues[i];
-    const season = seasons[i];
     
     // For each group
     for (const group of league.groups) {
@@ -235,7 +288,7 @@ async function createMatches(leagues, seasons) {
       // If there are at least 2 clans, create a match
       if (clans.length >= 2) {
         const match = {
-          season: season._id,
+          season: league.seasons[i]._id,
           clanA: clans[0],
           clanB: clans[1],
           scoreA: Math.floor(Math.random() * 3),
@@ -257,42 +310,54 @@ async function createMatches(leagues, seasons) {
   }
   
   const matches = await Match.insertMany(matchesData);
-  console.log(`✅ Created ${matches.length} matches`);
+  logger.info(`Created ${matches.length} matches successfully`, {}, 'SYSTEM');
 }
 
-// Main seeder function
+// Main seeding function
 async function devSeedDatabase() {
-  console.log('🌱 Starting DEV database seeder...');
-  
-  // Connect to database
-  const connected = await connectDevDB();
-  if (!connected) return;
-  
+  // Ensure database connection
+  if (!mongoose.connection.readyState) {
+    logger.info('No database connection detected, connecting...', {}, 'DB');
+    const connected = await connectDevDB();
+    if (!connected) {
+      throw new Error('Failed to connect to database');
+    }
+  }
+
   try {
+    // Check if seeding is needed
+    const needsSeed = await checkNeedsSeed();
+    
+    if (!needsSeed) {
+      logger.info('Database already contains data, skipping seed', {}, 'SYSTEM');
+      return false;
+    }
+
+    logger.info('Starting database seeding', {}, 'SYSTEM');
+
     // Clear existing data
     await clearDatabase();
-    
+
     // Create fake data
     const users = await createUsers(100);
     const clans = await createClans(users, 20);
-    const { leagues, seasons } = await createLeagues(clans);
-    await createMatches(leagues, seasons);
-    
-    console.log('✅ Database seeding completed successfully!');
+    const leagues = await createLeagues(clans);
+    await createMatches(leagues);
+
+    logger.info('Database seeding completed successfully', {
+      users: users.length,
+      clans: clans.length,
+      leagues: leagues.length
+    }, 'SYSTEM');
+
+    return true;
   } catch (error) {
-    console.error('❌ Error during seeding:', error);
-  } finally {
-    // Close database connection
-    await mongoose.disconnect();
-    console.log('📝 Database connection closed');
+    logger.error('Error during database seeding', {
+      error: error.message,
+      stack: error.stack
+    }, 'SYSTEM');
+    throw error;
   }
 }
 
-// Run the seeder if called directly
-if (require.main === module) {
-  // Running as standalone script
-  devSeedDatabase();
-} else {
-  // Exported as a module
-  module.exports = devSeedDatabase; 
-}
+module.exports = devSeedDatabase;

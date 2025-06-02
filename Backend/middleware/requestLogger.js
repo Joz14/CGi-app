@@ -37,7 +37,6 @@ const requestLogger = (req, res, next) => {
       statusCode,
       duration,
       userId,
-      userAgent: req.get('user-agent'),
       ip: req.ip
     }, 'HTTP');
   });

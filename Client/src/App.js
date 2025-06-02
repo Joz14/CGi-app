@@ -6,16 +6,39 @@ import Home from './pages/Home.js';
 import ClanPage from './pages/ClanPage.js';
 import LeaderboardPage from './pages/LeaderboardPage.js';
 import Footer from './components/Footer.js';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
+
 function App() {
   return (
     <div className="App">
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/clan" element={<ClanPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/clan" 
+          element={
+            <ProtectedRoute>
+              <ClanPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/leaderboard" 
+          element={
+            <ProtectedRoute>
+              <LeaderboardPage />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
       <Footer />
     </div>

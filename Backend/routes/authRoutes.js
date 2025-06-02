@@ -1,6 +1,7 @@
 // routes/authRoutes.js
 const express = require('express');
 const { auth } = require('express-openid-connect');
+const logger = require('../utils/logger');
 
 const authRouter = express.Router();
 const logoutRouter = express.Router(); // new router for isolated logout
@@ -33,14 +34,21 @@ authRouter.use(auth({
     returnTo: 'http://localhost:3000/auth/login'
   }),
   afterCallback: (req, res, session) => {
-    console.log('✅ Logged in session:', session);
+    logger.info('User logged in successfully', {
+      userId: session?.user?.sub,
+      email: session?.user?.email,
+      loginTime: new Date().toISOString()
+    }, 'AUTH');
     return session;
   }
 }));
 
 // Define logout route in a SEPARATE router without auth middleware
 logoutRouter.get('/custom-logout', (req, res) => {
-  console.log('🔒 Logging out...');
+  logger.info('Processing logout request', {
+    userId: req.oidc?.user?.sub,
+    sessionExists: !!req.session
+  }, 'AUTH');
 
   const returnTo = encodeURIComponent('http://localhost:3001/');
   const auth0Domain = 'https://dev-ap4cjr4c7rqutytk.us.auth0.com';
@@ -48,6 +56,11 @@ logoutRouter.get('/custom-logout', (req, res) => {
 
   // Clear all possible session cookies
   const cookies = Object.keys(req.cookies || {});
+  logger.debug('Clearing cookies', { 
+    cookieCount: cookies.length,
+    cookieNames: cookies 
+  }, 'AUTH');
+
   cookies.forEach(cookie => {
     res.clearCookie(cookie, { 
       path: '/',
@@ -66,10 +79,25 @@ logoutRouter.get('/custom-logout', (req, res) => {
   // Clear any session data
   if (req.session) {
     req.session.destroy();
+    logger.debug('Session destroyed', {}, 'AUTH');
   }
 
-  console.log('✅ Cleared all cookies and session. Redirecting to Auth0 logout.');
+  logger.info('Logout completed successfully', {
+    userId: req.oidc?.user?.sub,
+    redirectUrl: returnTo
+  }, 'AUTH');
+  
   res.redirect(logoutUrl);
+});
+
+// Add error handling middleware
+authRouter.use((err, req, res, next) => {
+  logger.error('Auth error occurred', {
+    error: err.message,
+    stack: err.stack,
+    userId: req.oidc?.user?.sub
+  }, 'AUTH');
+  next(err);
 });
 
 module.exports = { authRouter, logoutRouter };

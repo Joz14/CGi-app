@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const User = require('../models/userSchema.js'); // Adjust the path as necessary
+const User = require('../models/userSchema.js');
+const requireAuth = require('../middleware/authCheck');
+const logger = require('../utils/logger');
 
-router.get('/auth/login', async (req, res) => {
-    if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
+router.get('/auth/login', requireAuth, async (req, res) => {
     const { sub, nickname, email} = req.oidc.user;
   
     try {
@@ -17,26 +18,36 @@ router.get('/auth/login', async (req, res) => {
           nickname: nickname,
           roles: ['user']
         });
-        console.log(`✅ Created new user: ${nickname}`);
+        logger.info('Created new user', {
+          userId: sub,
+          email,
+          nickname
+        }, 'USER');
       }
   
       // Redirect to frontend app after DB setup
       res.redirect('http://localhost:3001/');
     } catch (err) {
-      console.error('❌ Failed to initialize user:', err);
+      logger.error('Failed to initialize user', {
+        error: err.message,
+        stack: err.stack,
+        userId: sub
+      }, 'USER');
       res.status(500).send('User setup failed');
     }
   });
 
-router.get('/account', async (req, res) => {
-    if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
-  
+router.get('/account', requireAuth, async (req, res) => {
     try {
       const authUser = req.oidc.user;
       
       // Check if running in DEV mode and using the dev user
       const isDev = process.env.DEV_MODE === 'true';
       if (isDev && authUser.email === 'dev@example.com') {
+        logger.debug('Returning dev account data', {
+          email: authUser.email
+        }, 'USER');
+        
         // Return mock account data for dev user
         return res.json({
           email: authUser.email,
@@ -56,7 +67,13 @@ router.get('/account', async (req, res) => {
       // Populate the 'clan' field with name and tag (not full details)
       const user = await User.findOne({ auth0Id: authUser.sub }).populate('clan', 'name tag');
   
-      if (!user) return res.status(404).json({ error: 'User not found in DB' });
+      if (!user) {
+        logger.warn('User not found in database', {
+          auth0Id: authUser.sub,
+          email: authUser.email
+        }, 'USER');
+        return res.status(404).json({ error: 'User not found in DB' });
+      }
   
       res.json({
         email: authUser.email,
@@ -71,19 +88,26 @@ router.get('/account', async (req, res) => {
         } : null
       });
     } catch (err) {
-      console.error('Error fetching account:', err);
+      logger.error('Error fetching account', {
+        error: err.message,
+        stack: err.stack,
+        userId: req.oidc?.user?.sub
+      }, 'USER');
       res.status(500).json({ error: 'Server error' });
     }
   });
 
-router.patch('/account', async (req, res) => {
-  if (!req.oidc.isAuthenticated()) return res.sendStatus(401);
-
+router.patch('/account', requireAuth, async (req, res) => {
   const { displayName, clashTag } = req.body;
   
   // Check if running in DEV mode and using the dev user
   const isDev = process.env.DEV_MODE === 'true';
   if (isDev && req.oidc.user.email === 'dev@example.com') {
+    logger.debug('Mock profile update in dev mode', {
+      displayName,
+      clashTag
+    }, 'USER');
+    
     // Mock successful update for dev user
     return res.json({ 
       message: 'Profile updated (DEV mode)', 
@@ -103,10 +127,17 @@ router.patch('/account', async (req, res) => {
       },
       { new: true }
     );
-    console.log('Updated user:', updated);
+    logger.info('Updated user profile', {
+      userId: req.oidc.user.sub,
+      updates: { displayName, clashTag }
+    }, 'USER');
     res.json({ message: 'Profile updated', user: updated });
   } catch (err) {
-    console.error('Error updating profile:', err);
+    logger.error('Error updating profile', {
+      error: err.message,
+      stack: err.stack,
+      userId: req.oidc.user.sub
+    }, 'USER');
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });

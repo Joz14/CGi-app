@@ -56,16 +56,96 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid var(--color-primary);
-  transition: transform var(--transition-fast);
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--card-bg-light);
 }
 
-.nav-avatar:hover {
-  transform: scale(1.05);
+.nav-avatar.loading {
+  background: linear-gradient(135deg, #6e8efb 0%, #4a6cf7 100%);
+}
+
+.initials-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6e8efb 0%, #4a6cf7 100%);
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .avatar-container {
+  position: relative;
   cursor: pointer;
+  width: 40px;
+  height: 40px;
+}
+
+.avatar-container:hover .nav-avatar {
+  transform: scale(1.1);
+}
+
+.navbar-right .loading-placeholder {
   display: flex;
   align-items: center;
+  justify-content: center;
+  /* Base styles to be overridden by specific shape class */
+}
+
+.navbar-right .loading-placeholder.button-shape {
+  /* Match .gradient-button dimensions */
+  min-width: 105px; /* Or specific width of your gradient-button */
+  height: 35px;    /* Or specific height of your gradient-button */
+  padding: 0.75em 1.5em; /* Match gradient-button padding */
+  border-radius: 100px; /* Match gradient-button border-radius */
+  background: linear-gradient(45deg, #0d8aea, #09a5ee);
+  position: relative; /* For gradient pseudo-elements if needed */
+}
+
+/* Add pseudo-elements to mimic gradient-button border during loading */
+.navbar-right .loading-placeholder.button-shape::after {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  background: linear-gradient(45deg, #0d8aea, #09a5ee);
+  border-radius: 100px;
+  z-index: -2;
+}
+.navbar-right .loading-placeholder.button-shape::before {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px; right: 2px; bottom: 2px;
+  background: linear-gradient(45deg, #0d8aea, #09a5ee);
+  border-radius: 100px;
+  z-index: -1;
+}
+
+
+.navbar-right .loading-placeholder.avatar-shape {
+  /* Match .nav-avatar dimensions */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6e8efb 0%, #4a6cf7 100%); /* Match .initials-avatar bg */
+}
+
+.loading-spinner {
+  width: 16px;       /* or 18px, choose your preferred size */
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  box-sizing: border-box;
+  display: block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

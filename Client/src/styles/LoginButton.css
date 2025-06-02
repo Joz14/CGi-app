@@ -1,9 +1,11 @@
 @import './theme.css';
 .login-button {
-  padding: 1em 2em;
+  padding: 0.75em 1.5em;
+  min-width: 100px;
+  height: 40px;
   font-size: 1rem;
   font-weight: 600;
-  background-color: #404245;
+  background: linear-gradient(45deg, #0d8aea, #09a5ee);
   color: #ffffff;
   border: none;
   border-radius: 100px;
@@ -15,6 +17,15 @@
   overflow: hidden;
   z-index: 1;
   transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.login-button .loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
 }
 
 /* Animated gradient border */
@@ -41,7 +52,7 @@
   left: 2px;
   right: 2px;
   bottom: 2px;
-  background-color: #404245;
+    background: linear-gradient(45deg, #0d8aea, #09a5ee);
   border-radius: 100px;
   z-index: -1;
   transition: background-color 0.4s ease;
@@ -54,9 +65,21 @@
 
 .login-button:hover::after {
   background-position: right center;
-
 }
 
 .login-button:hover {
   color: white;
+}
+
+.login-button:disabled {
+  cursor: default;
+  color: #cccccc;
+}
+
+.login-button:disabled:hover::before {
+  background-color: #404245;
+}
+
+.login-button:disabled:hover::after {
+  background-position: left center;
 }
